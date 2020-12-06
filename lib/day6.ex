@@ -36,11 +36,11 @@ defmodule Aoc2020.Day6 do
     |> Enum.uniq()
   end
 
-  def all_answered([head | []]), do: answers(head)
-  def all_answered([head | tail]) do
-    Enum.reduce(tail, MapSet.new(answers(head)), fn person, answer_set ->
-      MapSet.intersection(answer_set, MapSet.new(answers(person)))
-    end) |> MapSet.to_list()
+  def all_answered(groups) do
+    groups
+    |> Enum.map(&MapSet.new(answers(&1)))
+    |> Enum.reduce(&MapSet.intersection/2)
+    |> MapSet.to_list()
   end
 
   def answers(person) do
