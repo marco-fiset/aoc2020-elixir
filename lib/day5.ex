@@ -44,7 +44,7 @@ defmodule Aoc2020.Day5 do
 
   def parse_row(binary) do
     instructions = binary
-    |> split_chars()
+    |> StringUtils.split_chars()
     |> Enum.take(7)
 
     translate(instructions, "F", "B")
@@ -52,7 +52,7 @@ defmodule Aoc2020.Day5 do
 
   def parse_column(binary) do
     instructions = binary
-    |> split_chars()
+    |> StringUtils.split_chars()
     |> Enum.drop(7)
 
     translate(instructions, "L", "R")
@@ -73,11 +73,7 @@ defmodule Aoc2020.Day5 do
     |> List.first()
   end
 
-  def split_chars(s) do
-    s
-    |> String.split("")
-    |> Enum.filter(& &1 != "")
-  end
+
 
   def input do
     "BBFFFBBLLR
