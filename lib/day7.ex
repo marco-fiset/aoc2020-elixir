@@ -1,10 +1,62 @@
 defmodule Aoc2020.Day7 do
-  def parse_rules(lines) do
+  def part1(input, target) do
+    bags = input
+    |> String.split("\n")
+    |> parse_rules()
 
+    Enum.count(bags, &eventually_contains?(bags, &1, target))
+  end
+
+  def part2(input, container) do
+    bags = input
+    |> String.split("\n")
+    |> parse_rules()
+
+    contents_count(bags, container)
+  end
+
+  def eventually_contains?(bags, {color, _}, containee), do: eventually_contains?(bags, color, containee)
+  def eventually_contains?(bags, container, containee) do
+    contained_bags = bags
+    |> Map.get(container, [])
+    |> Enum.map(&elem(&1, 1))
+
+    Enum.member?(contained_bags, containee) || Enum.any?(contained_bags, &eventually_contains?(bags, &1, containee))
+  end
+
+  def contents_count(bags, container) do
+    bags
+    |> Map.get(container, [])
+    |> Enum.map(fn {count, color} ->
+      count + count * contents_count(bags, color)
+    end)
+    |> Enum.sum()
+  end
+
+  def parse_rules(lines) do
+    lines
+    |> Enum.map(&parse_rule/1)
+    |> Enum.reduce(&Map.merge/2)
   end
 
   def parse_rule(line) do
+    [color, contents] = String.split(line, " bags contain ")
 
+    if String.contains?(contents, "no other bags") do
+      %{color => []}
+    else
+      %{color => parse_contents(contents)}
+    end
+  end
+
+  def parse_contents(contents) do
+    contents
+    |> String.split(", ")
+    |> Enum.flat_map(& String.split(&1, ", "))
+    |> Enum.map(fn bag_description ->
+      {count, color} = Integer.parse(bag_description)
+      {count, Regex.replace(~r/bags?\.?/, color, "") |> String.trim()}
+    end)
   end
 
   def input do
