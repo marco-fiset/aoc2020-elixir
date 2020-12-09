@@ -7,6 +7,16 @@ defmodule Aoc2020.Day9 do
     |> find_invalid_number()
   end
 
+  def part2() do
+    invalid_number = part1()
+
+    range = input()
+    |> parse_input()
+    |> find_contiguous_sum(invalid_number)
+
+    Enum.min(range) + Enum.max(range)
+  end
+
   def find_invalid_number([]), do: nil
   def find_invalid_number(numbers) do
     preamble = Enum.take(numbers, 25)
@@ -23,6 +33,29 @@ defmodule Aoc2020.Day9 do
     case sum_candidates(number, preceding_numbers) do
       nil -> false
       [_, _] -> true
+    end
+  end
+
+  def find_contiguous_sum([head | tail], target) do
+    acc = %{sum: head, numbers: [head]}
+
+    result = Enum.reduce_while(tail, acc, fn n, %{numbers: numbers, sum: sum} ->
+      acc = %{
+        sum: n + sum,
+        numbers: numbers ++ [n]
+      }
+
+      if acc.sum >= target do
+        {:halt, acc}
+      else
+        {:cont, acc}
+      end
+    end)
+
+    if result.sum == target do
+      result.numbers
+    else
+      find_contiguous_sum(tail, target)
     end
   end
 
